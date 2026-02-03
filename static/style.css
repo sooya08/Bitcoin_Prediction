@@ -1,0 +1,119 @@
+:root {
+    --bg-color: #0f172a;
+    --card-bg: rgba(30, 41, 59, 0.7);
+    --primary-color: #f7931a; /* Bitcoin Orange */
+    --text-color: #f8fafc;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Inter', sans-serif;
+    color: var(--text-color);
+    background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, rgba(31, 1, 12, 0) 0, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+}
+
+/* Glassmorphism Utilities */
+.glass-nav, .glass-footer, .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: var(--glass-border);
+}
+
+.glass-card {
+    border: var(--glass-border);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 30px rgba(20, 0, 0, 0);
+}
+
+.text-bitcoin {
+    color: var(--primary-color);
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* Tables */
+.table-dark {
+    --bs-table-bg: transparent;
+}
+
+/* Buttons */
+.btn-bitcoin {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-bitcoin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.4);
+    color: white;
+}
+
+/* Page Transitions (Simple Fade) */
+.main-content {
+    animation: fadeIn 0.8s ease-in-out;
+    padding-bottom: 6rem; /* ensure content isn't hidden behind footer */
+    min-height: calc(100vh - 150px); /* keep content area tall enough to show bottom content */
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Footer visibility improvements */
+.glass-footer {
+    color: var(--text-color) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.614);
+    background: rgba(97, 2, 2, 0);
+}
+
+.glass-footer small {
+    color: rgba(248,250,252,0.95) !important;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.glass-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.glass-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Prevent inner cards from clipping children near rounded corners */
+.glass-card,
+.glass-footer {
+    overflow: visible;
+}
+
+/* If a Bootstrap utility `overflow-hidden` was added to a glass-card, allow content to show */
+.glass-card.overflow-hidden {
+    overflow: visible !important;
+}

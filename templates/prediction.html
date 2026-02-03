@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="fw-bold">Future Predictions 🔮</h1>
+    <p class="text-secondary">Forecast Bitcoin prices for the upcoming days.</p>
+</div>
+
+
+
+{% if metrics %}
+<!-- Top Section: Advanced Technical Chart (Full Width) -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="glass-card p-0 overflow-hidden" style="border-radius: 20px;">
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <h4 class="m-0 text-bitcoin">Market Analysis & Technical Chart 📈</h4>
+                <div class="badge bg-primary px-3 py-2">LIVE ADVANCED VIEW</div>
+            </div>
+            <div style="height: 650px;">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height: 100%;">
+                    <div id="tradingview_adv_full" style="height: 100%;"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                        new TradingView.widget({
+                            "autosize": true,
+                            "symbol": "BITSTAMP:BTCUSD",
+                            "interval": "D",
+                            "timezone": "Etc/UTC",
+                            "theme": "dark",
+                            "style": "1",
+                            "locale": "in",
+                            "toolbar_bg": "#f1f3f6",
+                            "enable_publishing": false,
+                            "withdateranges": true,
+                            "hide_side_toolbar": false,
+                            "allow_symbol_change": true,
+                            "details": true,
+                            "hotlist": true,
+                            "calendar": true,
+                            "container_id": "tradingview_adv_full"
+                        });
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Middle Section: AI Insights -->
+<div class="row mb-5">
+    <div class="col-lg-4 mb-4">
+        <div class="glass-card h-100">
+            <h4 class="mb-4 text-bitcoin">AI Summary</h4>
+            <div class="mb-4 text-center">
+                <p class="text-secondary small mb-1">Current Price</p>
+                <h3 class="fw-bold">${{ "{:,.2f}".format(metrics.current_price) }}</h3>
+            </div>
+            <hr class="border-secondary opacity-25">
+            <div class="mb-4 text-center">
+                <p class="text-secondary small mb-1">AI Prediction (24h)</p>
+                <h3 class="fw-bold text-bitcoin">${{ "{:,.2f}".format(metrics.next_day_price) }}</h3>
+            </div>
+            <div class="text-center">
+                <span
+                    class="badge {% if metrics.price_diff > 0 %}bg-success{% else %}bg-danger{% endif %} fs-6 p-2 w-100">
+                    {% if metrics.price_diff > 0 %}▲ Bullish{% else %}▼ Bearish{% endif %}
+                    ({{ "{:.2f}".format(metrics.diff_percent | abs) }}%)
+                </span>
+            </div>
+            <div class="mt-4 p-3 bg-dark rounded bg-opacity-50">
+                <small class="text-secondary">
+                    Our model predicts a **{% if metrics.price_diff > 0 %}rise{% else %}drop{% endif %}** of
+                    **${{ metrics.price_diff | abs }}** based on AHLCV signals.
+                </small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8 mb-4">
+        <div class="glass-card h-100">
+            <h4 class="mb-4 text-bitcoin">AI Price Forecast (30-Day Outlook) 🤖</h4>
+            <div id="pred-chart" style="height: 350px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Prediction Timeline Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="glass-card">
+            <h4 class="mb-4">Daily Price Targets</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover m-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Predicted Price</th>
+                            <th>Change</th>
+                            <th>Market Signal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for date in range(days) %}
+                        {% set p_price = plot_obj.data[1].y[date+1] %}
+                        {% set prev_price = plot_obj.data[1].y[date] %}
+                        {% set day_diff = p_price - prev_price %}
+                        <tr>
+                            <td>{{ plot_obj.data[1].x[date+1] }}</td>
+                            <td class="fw-bold text-bitcoin">${{ "{:,.2f}".format(p_price) }}</td>
+                            <td class="{% if day_diff > 0 %}text-success{% else %}text-danger{% endif %}">
+                                {{ "%.2f"|format(day_diff) }}$
+                            </td>
+                            <td>
+                                {% if day_diff > 0 %}
+                                <span
+                                    class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50">BUY</span>
+                                {% else %}
+                                <span
+                                    class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-50">SELL</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var plotData = {{ plot | safe }};
+    Plotly.newPlot('pred-chart', plotData.data, plotData.layout, { responsive: true });
+</script>
+{% else %}
+<div class="text-center mt-5">
+    <div class="alert alert-info d-inline-block">
+        ℹ️ Model not found. Please <a href="/analysis" class="alert-link">Train the Model</a> first.
+    </div>
+</div>
+<!-- Economic Calendar Section -->
+<div class="row mt-5 mb-5">
+    <div class="col-12">
+        <div class="glass-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="m-0 text-bitcoin">Market Context: Economic Calendar 📅</h4>
+                <span class="badge bg-dark border border-secondary">Global Impact Events</span>
+            </div>
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript"
+                    src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                        {
+                            "colorTheme": "dark",
+                                "isTransparent": true,
+                                    "width": "100%",
+                                        "height": "600",
+                                            "locale": "in",
+                                                "importanceFilter": "-1,0,1",
+                                                    "currencyFilter": "USD,EUR"
+                        }
+                    </script>
+            </div>
+            <p class="mt-3 text-muted small">
+                Note: Major economic events often drive Bitcoin price volatility.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

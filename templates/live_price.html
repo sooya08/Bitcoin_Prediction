@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="fw-bold">Live Bitcoin Price 💰</h1>
+    <p class="text-secondary">Real-time market data powered by **Yahoo Finance** and **TradingView**.</p>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class="col-md-8 col-lg-6">
+        <div class="glass-card text-center py-5">
+            <div class="mb-4">
+                <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png?v=025" width="80" alt="BTC">
+            </div>
+
+            <h2 class="display-4 fw-bold mb-2">$<span id="price-usd">Loading...</span></h2>
+            <h4 class="text-secondary mb-4">₹<span id="price-inr">Loading...</span></h4>
+
+            <button onclick="fetchPrice()" class="btn btn-bitcoin btn-lg px-5">
+                Refresh Price 🔄
+            </button>
+
+            <p class="mt-3 text-muted small">Updated: <span id="last-updated">-</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- TradingView Graph Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="glass-card p-0 overflow-hidden" style="border-radius: 20px;">
+            <div class="p-4 border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <h3 class="m-0">Interactive Market Chart 📈</h3>
+                <span class="badge bg-primary">Real-Time Data</span>
+            </div>
+            <div style="height: 600px;">
+                <!-- TradingView Widget BEGIN -->
+                <div class="tradingview-widget-container" style="height: 100%;">
+                    <div id="tradingview_btc" style="height: 100%;"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+                    <script type="text/javascript">
+                        new TradingView.widget(
+                            {
+                                "autosize": true,
+                                "symbol": "BITSTAMP:BTCUSD",
+                                "interval": "D",
+                                "timezone": "Etc/UTC",
+                                "theme": "dark",
+                                "style": "1",
+                                "locale": "in",
+                                "toolbar_bg": "#f1f3f6",
+                                "enable_publishing": false,
+                                "withdateranges": true,
+                                "hide_side_toolbar": false,
+                                "allow_symbol_change": true,
+                                "details": true,
+                                "hotlist": true,
+                                "calendar": true,
+                                "container_id": "tradingview_btc"
+                            }
+                        );
+                    </script>
+                </div>
+                <!-- TradingView Widget END -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technical Analysis Section -->
+<div class="row mt-4 mb-5">
+    <div class="col-md-7 mb-4">
+        <div class="glass-card p-4">
+            <h4 class="mb-4 text-bitcoin">Market Sentiment Analysis</h4>
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript"
+                    src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                        {
+                            "interval": "1D",
+                                "width": "100%",
+                                    "isTransparent": true,
+                                        "height": "420",
+                                            "symbol": "BITSTAMP:BTCUSD",
+                                                "showIntervalTabs": true,
+                                                    "locale": "in",
+                                                        "colorTheme": "dark"
+                        }
+                    </script>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5 mb-4">
+        <div class="glass-card h-100 d-flex flex-column justify-content-center p-4">
+            <h3 class="mb-3 text-bitcoin">Trading Signal 🎯</h3>
+            <p class="text-secondary lead">
+                Get an instant snapshot of the market's technical health. This gauge analyzes:
+            </p>
+            <ul class="text-secondary">
+                <li>Exponential Moving Averages (EMA)</li>
+                <li>Relative Strength Index (RSI)</li>
+                <li>MACD and Stochastic Oscillators</li>
+                <li>Multiple Timeframe Trends</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function fetchPrice() {
+        const btn = document.querySelector('button');
+        btn.disabled = true;
+        btn.innerHTML = 'Refreshing... ⏳';
+
+        fetch('/api/live_price')
+            .then(response => response.json())
+            .then(data => {
+                if (data.usd) {
+                    document.getElementById('price-usd').innerText = data.usd.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                    document.getElementById('price-inr').innerText = data.inr.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+
+                    const now = new Date();
+                    document.getElementById('last-updated').innerText = now.toLocaleTimeString();
+
+                    // Add flash effect
+                    const card = document.querySelector('.glass-card');
+                    card.style.borderColor = '#57D131';
+                    setTimeout(() => card.style.borderColor = 'var(--glass-border)', 500);
+                } else {
+                    alert('Failed to fetch price.');
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Refresh Price 🔄';
+            });
+    }
+
+    // specific fetch on load
+    document.addEventListener('DOMContentLoaded', fetchPrice);
+
+    // Auto-refresh every 30 seconds
+    setInterval(fetchPrice, 30000);
+</script>
+{% endblock %}

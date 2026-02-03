@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="glass-card p-5">
+            <h1 class="fw-bold mb-4">ℹ️ About This App</h1>
+
+            <p class="lead text-secondary mb-4">
+                This application demonstrates the power of Machine Learning in financial forecasting.
+                It was originally a Streamlit prototype and has been re-engineered as a robust Flask web application.
+            </p>
+
+            <hr class="border-secondary my-4">
+
+            <h3 class="mb-3">🚀 Features</h3>
+            <ul class="list-group list-group-flush bg-transparent">
+                <li class="list-group-item bg-transparent text-white border-secondary">
+                    <span class="text-bitcoin fw-bold">Data Fetching:</span> Yahoo Finance (Historical) & CoinGecko
+                    (Live).
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary">
+                    <span class="text-bitcoin fw-bold">Machine Learning:</span> XGBoost Regressor for time-series
+                    forecasting.
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary">
+                    <span class="text-bitcoin fw-bold">Visualization:</span> Interactive charts powered by Plotly.js.
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary">
+                    <span class="text-bitcoin fw-bold">Architecture:</span> Flask (Backend) + Bootstrap 5 (Frontend).
+                </li>
+                <li class="list-group-item bg-transparent text-white border-secondary">
+                    <span class="text-bitcoin fw-bold">Advanced Coding:</span> Developed with  Advanced Agentic Coding.
+                </li>
+            </ul>
+
+            <div class="mt-5 text-center">
+                <p class="text-muted">  ❤️ </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
