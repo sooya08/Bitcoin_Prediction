@@ -1,7 +1,7 @@
 ---
 title: Bitcoin Prediction
 emoji: 📈
-colorFrom: orange
+colorFrom: red
 colorTo: yellow
 sdk: docker
 app_port: 7860
