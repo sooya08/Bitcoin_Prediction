@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center min-vh-75">
+    <div class="col-lg-6">
+        <h1 class="display-3 fw-bold mb-4">Welcome to <span class="text-bitcoin">CryptoPredict</span></h1>
+        <p class="lead mb-4 text-secondary">
+            Advanced Machine Learning powered by XGBoost to analyze and predict Bitcoin price movements.
+            Leveraging historical data from 2014 to present.
+        </p>
+        <div class="d-flex gap-3">
+            <a href="/live" class="btn btn-bitcoin btn-lg">Check Live Price 💰</a>
+            <a href="/prediction" class="btn btn-outline-light btn-lg">View Predictions 🔮</a>
+        </div>
+        <div class="mt-5">
+            <h5>Features:</h5>
+            <ul class="list-unstyled text-secondary">
+                <li>✅ Real-time Data Analysis (EDA)</li>
+                <li>✅ XGBoost Model Integration</li>
+                <li>✅ 7-Day & 30-Day Moving Averages</li>
+                <li>✅ Future Price Forecasting</li>
+            </ul>
+        </div>
+        <div class="mt-5 btc-details-section">
+            <h5 class="text-bitcoin">About Bitcoin:</h5>
+            <p class="text-secondary small">
+                Bitcoin is a decentralized digital currency without a central bank or single administrator. 
+                It can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.
+                Transactions are verified by network nodes through cryptography and recorded in a public distributed ledger called a blockchain.
+            </p>
+
+        </div>
+    </div>
+    <div class="col-lg-6 text-center">
+        <div class="glass-card p-0 overflow-hidden" style="border-radius: 20px;">
+            <!-- TradingView Widget BEGIN -->
+            <div class="tradingview-widget-container">
+                <div class="tradingview-widget-container__widget"></div>
+                <script type="text/javascript"
+                    src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
+                        {
+                            "symbol": "BITSTAMP:BTCUSD",
+                                "width": "100%",
+                                    "height": "400",
+                                        "locale": "in",
+                                            "dateRange": "12M",
+                                                "colorTheme": "dark",
+                                                    "isTransparent": true,
+                                                        "autosize": false,
+                                                            "largeChartUrl": ""
+                        }
+                    </script>
+            </div>
+            <!-- TradingView Widget END -->
+        </div>
+        <p class="mt-3 text-secondary small">Live market data powered by TradingView</p>
+    </div>
+</div>
+
+<style>
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+
+        50% {
+            transform: translateY(-20px);
+        }
+
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    .spinning-coin {
+        animation: float 6s ease-in-out infinite;
+        filter: drop-shadow(0 0 20px rgba(247, 147, 26, 0.3));
+    }
+</style>
+{% endblock %}

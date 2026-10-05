@@ -1,0 +1,11 @@
+flask
+pandas
+numpy
+plotly
+scikit-learn
+xgboost
+yfinance
+requests
+Pillow
+gunicorn
+joblib
