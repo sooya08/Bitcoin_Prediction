@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Prediction</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #151b26;
+            --card: #202b3a;
+            --orange: #f7931a;
+            --text: #f5f7fa;
+            --muted: #a6b0bf;
+            --green: #20c997;
+            --red: #ff5b67;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .navbar {
+            background: #101722;
+            border-bottom: 1px solid #ffffff12;
+            padding: 15px 4%;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 22px;
+            color: white;
+        }
+
+        .navbar-brand span { color: var(--orange); }
+
+        .nav-link {
+            color: #c2c9d3;
+            margin-left: 10px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--orange);
+        }
+
+        .container-main {
+            max-width: 1450px;
+            margin: auto;
+            padding: 32px 22px 50px;
+        }
+
+        .page-title {
+            font-size: clamp(26px, 3vw, 36px);
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .orange { color: var(--orange); }
+        .muted { color: var(--muted); }
+
+        .exchange-info {
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .exchange-info strong { color: var(--orange); }
+
+        .metric-card, .panel {
+            background: var(--card);
+            border: 1px solid #ffffff12;
+            border-radius: 16px;
+            padding: 24px;
+            height: 100%;
+        }
+
+        .metric-label {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .metric-usd {
+            font-size: clamp(22px, 2.4vw, 32px);
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-inr {
+            margin-top: 9px;
+            font-size: clamp(17px, 1.8vw, 22px);
+            font-weight: 600;
+            color: #d9e0ea;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-sub {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .positive { color: var(--green) !important; }
+        .negative { color: var(--red) !important; }
+
+        .movement {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .movement-up {
+            color: var(--green);
+            background: #20c99720;
+        }
+
+        .movement-down {
+            color: var(--red);
+            background: #ff5b6720;
+        }
+
+        .panel { margin-top: 24px; }
+
+        .panel-heading {
+            font-size: 21px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .panel-description {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        #forecastChart {
+            width: 100%;
+            min-height: 440px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+        }
+
+        .form-select {
+            width: auto;
+            min-width: 135px;
+            color: white;
+            background-color: #151b26;
+            border-color: #ffffff25;
+        }
+
+        .form-select:focus {
+            color: white;
+            background-color: #151b26;
+            border-color: var(--orange);
+            box-shadow: none;
+        }
+
+        .btn-orange {
+            background: var(--orange);
+            color: #171717;
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 700;
+        }
+
+        .btn-orange:hover {
+            background: #ffad42;
+            color: #171717;
+        }
+
+        .table {
+            color: #e8edf5;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            color: var(--orange);
+            white-space: nowrap;
+            border-bottom-color: #ffffff20;
+        }
+
+        .table td { border-color: #ffffff12; }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 35px 12px;
+        }
+
+        .disclaimer {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 22px;
+        }
+
+        footer {
+            border-top: 1px solid #ffffff12;
+            text-align: center;
+            padding: 22px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .container-main { padding: 24px 14px 35px; }
+            .metric-card, .panel { padding: 18px; }
+            #forecastChart { min-height: 350px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            ₿ Bitcoin <span>Predictor</span>
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarMenu"
+                aria-controls="navbarMenu" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="/eda">EDA</a></li>
+                <li class="nav-item"><a class="nav-link" href="/live">Live Price</a></li>
+                <li class="nav-item"><a class="nav-link" href="/analysis">Analysis</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/prediction">Prediction</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container-main">
+
+    <div class="mb-4">
+        <h1 class="page-title">
+            Bitcoin <span class="orange">Price Prediction</span>
+        </h1>
+
+        <p class="muted mb-0">
+            Machine-learning forecasts with USD and INR price display.
+        </p>
+
+        <div class="exchange-info">
+            Exchange rate:
+            <strong>{{ exchange_rate_display | default('USD to INR') }}</strong>
+        </div>
+    </div>
+
+    {% if metrics %}
+
+    {% set current_usd = metrics.current_price | float %}
+    {% set next_usd = metrics.next_day_price | float %}
+    {% set change_usd = metrics.price_diff | float %}
+    {% set change_pct = metrics.diff_percent | float %}
+
+    <div class="row g-4">
+
+        <!-- Current Bitcoin price -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="metric-card">
+                <div class="metric-label">CURRENT BITCOIN PRICE</div>
+
+                <div class="metric-usd">
+                    ${{ "{:,.2f}".format(current_usd) }}
+                </div>
+
+                <div class="metric-inr">
+                    ₹{{ "{:,.2f}".format(metrics.current_price_inr | float) }}
+                </div>
+
+                <div class="metric-sub">
+                    Latest price supplied by the model's data source
+                </div>
+            </div>
+        </div>
+
+        <!-- Next-day prediction -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="metric-card">
+                <div class="metric-label">AI PREDICTION (24H)</div>
+
+                <div class="metric-usd orange">
+                    ${{ "{:,.2f}".format(next_usd) }}
+                </div>
+
+                <div class="metric-inr">
+                    ₹{{ "{:,.2f}".format(metrics.next_day_price_inr | float) }}
+                </div>
+
+                {% if change_usd > 0 %}
+                    <div class="movement movement-up">
+                        ▲ Predicted increase: +{{ "%.2f"|format(change_pct) }}%
+                    </div>
+                {% elif change_usd < 0 %}
+                    <div class="movement movement-down">
+                        ▼ Predicted decrease: {{ "%.2f"|format(change_pct) }}%
+                    </div>
+                {% else %}
+                    <div class="movement">
+                        No predicted price change
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Price difference -->
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="metric-card">
+                <div class="metric-label">PREDICTED PRICE CHANGE</div>
+
+                <div class="metric-usd {% if change_usd >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if change_usd > 0 %}+{% elif change_usd < 0 %}-{% endif %}${{ "{:,.2f}".format(change_usd | abs) }}
+                </div>
+
+                <div class="metric-inr {% if change_usd >= 0 %}positive{% else %}negative{% endif %}">
+                    {% if change_usd > 0 %}+{% elif change_usd < 0 %}-{% endif %}₹{{ "{:,.2f}".format(metrics.price_diff_inr | abs) }}
+                </div>
+
+                <div class="metric-sub">
+                    Percentage change:
+                    {% if change_pct > 0 %}+{% endif %}{{ "%.2f"|format(change_pct) }}%
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Prediction graph -->
+    <section class="panel">
+        <div class="controls">
+            <div>
+                <h2 class="panel-heading">
+                    Historical Price & <span class="orange">Forecast</span>
+                </h2>
+
+                <p class="panel-description">
+                    Hover over the graph to see prices in USD and INR.
+                </p>
+            </div>
+
+            <form action="/prediction" method="GET" class="d-flex gap-2">
+                <select name="days" class="form-select" aria-label="Forecast days">
+                    <option value="7" {% if days == 7 %}selected{% endif %}>7 days</option>
+                    <option value="14" {% if days == 14 %}selected{% endif %}>14 days</option>
+                    <option value="30" {% if days == 30 %}selected{% endif %}>30 days</option>
+                    <option value="60" {% if days == 60 %}selected{% endif %}>60 days</option>
+                    <option value="90" {% if days == 90 %}selected{% endif %}>90 days</option>
+                </select>
+
+                <button type="submit" class="btn-orange">Update</button>
+            </form>
+        </div>
+
+        <div id="forecastChart"></div>
+    </section>
+
+    <!-- Forecast data table -->
+    <section class="panel">
+        <h2 class="panel-heading">
+            Forecast <span class="orange">Details</span>
+        </h2>
+
+        <p class="panel-description">
+            Forecasted daily prices converted using the displayed exchange rate.
+        </p>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Predicted Price (USD)</th>
+                        <th>Predicted Price (INR)</th>
+                    </tr>
+                </thead>
+
+                <tbody id="forecastTableBody">
+                    <tr>
+                        <td colspan="3" class="text-center muted">
+                            Loading forecast data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="disclaimer">
+        <strong>Risk notice:</strong>
+        This page displays machine-learning estimates, not guaranteed prices
+        or financial advice. Cryptocurrency prices can change rapidly.
+        INR values are approximate currency conversions. Model predictions
+        can be inaccurate, especially over longer forecast periods.
+    </div>
+
+    {% else %}
+
+    <section class="panel empty-state">
+        <h3>No prediction data available</h3>
+        <p>
+            The application did not return prediction values.
+            Check the Flask terminal and the predict_next_days function in utils.py.
+        </p>
+
+        <a href="/prediction" class="btn-orange">Try Again</a>
+    </section>
+
+    {% endif %}
+
+</main>
+
+<footer>
+    Bitcoin Predictor · USD ($) and INR (₹)
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{% if plot %}
+<script>
+    // Plotly figure generated by the Flask app.
+    const figure = {{ plot | safe }};
+    const chart = document.getElementById("forecastChart");
+
+    if (chart && figure) {
+        Plotly.newPlot(
+            chart,
+            figure.data || [],
+            figure.layout || {},
+            {
+                responsive: true,
+                displaylogo: false
+            }
+        );
+    }
+
+    // Build the forecast table from the predicted chart trace.
+    const tableBody = document.getElementById("forecastTableBody");
+    const exchangeRate = Number({{ exchange_rate | default(85) | tojson }});
+
+    if (tableBody && figure && Array.isArray(figure.data)) {
+        const predicted = figure.data.find(
+            trace => trace.name === "Predicted"
+        );
+
+        tableBody.replaceChildren();
+
+        if (predicted && predicted.x && predicted.y) {
+            const dates = predicted.x;
+            const prices = predicted.y;
+
+            // The first point joins the forecast line to the last historical
+            // price; omit it from the future forecast table.
+            const startIndex = 1;
+
+            for (let i = startIndex; i < dates.length; i++) {
+                const usd = Number(prices[i]);
+
+                if (!Number.isFinite(usd)) {
+                    continue;
+                }
+
+                const inr = usd * exchangeRate;
+                const row = document.createElement("tr");
+
+                const dateCell = document.createElement("td");
+                dateCell.textContent = String(dates[i]).slice(0, 10);
+
+                const usdCell = document.createElement("td");
+                usdCell.textContent = usd.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD"
+                });
+
+                const inrCell = document.createElement("td");
+                inrCell.textContent = inr.toLocaleString("en-IN", {
+                    style: "currency",
+                    currency: "INR",
+                    maximumFractionDigits: 2
+                });
+
+                row.append(dateCell, usdCell, inrCell);
+                tableBody.appendChild(row);
+            }
+        }
+
+        if (!tableBody.children.length) {
+            const row = document.createElement("tr");
+            const cell = document.createElement("td");
+
+            cell.colSpan = 3;
+            cell.className = "text-center muted";
+            cell.textContent = "No future forecast rows returned.";
+
+            row.appendChild(cell);
+            tableBody.appendChild(row);
+        }
+    }
+</script>
+{% endif %}
+
+</body>
+</html>

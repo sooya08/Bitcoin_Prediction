@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="text-center mb-5">
+    <h1 class="fw-bold">Model Analysis 📈</h1>
+    <p class="text-secondary">Train the XGBoost model and evaluate its performance.</p>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-12 text-center">
+        <div class="glass-card">
+            <h3 class="mb-4">Train Model</h3>
+            <p>Training uses historical data (80% Train, 20% Test) to build the prediction model.</p>
+            <form method="POST" onsubmit="showLoading()">
+                <button type="submit" class="btn btn-bitcoin btn-lg" id="train-btn">
+                    Start Training 🚀
+                </button>
+            </form>
+            <div id="loading" class="mt-3 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-warning">Training Model... This may take a moment.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLoading() {
+        document.getElementById('loading').classList.remove('d-none');
+        document.getElementById('train-btn').disabled = true;
+        document.getElementById('train-btn').innerText = 'Training in progress...';
+    }
+</script>
+
+{% if result %}
+{% if result.error %}
+<div class="alert alert-danger text-center">
+    Error: {{ result.error }}
+</div>
+{% else %}
+<div class="row mb-5">
+    <div class="col-md-6 mb-4">
+        <div class="glass-card text-center h-100 d-flex flex-column justify-content-center">
+            <h4 class="text-secondary">Mean Absolute Error (MAE)</h4>
+            <div class="display-6 fw-bold text-bitcoin">${{ "%.2f"|format(result.mae) }}</div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="glass-card text-center h-100 d-flex flex-column justify-content-center">
+            <h4 class="text-secondary">Root Mean Squared Error (RMSE)</h4>
+            <div class="display-6 fw-bold text-bitcoin">${{ "%.2f"|format(result.rmse) }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="glass-card">
+            <h3 class="mb-4">Test Accuracy (Actual vs Predicted)</h3>
+            <div id="test-plot"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var rawPlot = {{ result.plot | tojson }};
+    var plotObj = typeof rawPlot === 'string' ? JSON.parse(rawPlot) : rawPlot;
+    if (plotObj) {
+        Plotly.newPlot('test-plot', plotObj.data || [], plotObj.layout || {}, { responsive: true });
+    }
+</script>
+<div class="text-center mt-4">
+    <div class="alert alert-success d-inline-block">
+        ✅ Model trained and saved successfully! Go to <a href="/prediction" class="alert-link">Predictions</a>.
+    </div>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
