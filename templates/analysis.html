@@ -43,14 +43,14 @@
 <div class="row mb-5">
     <div class="col-md-6 mb-4">
         <div class="glass-card text-center h-100 d-flex flex-column justify-content-center">
-            <h4 class="text-secondary">Mean Squared Error (MSE)</h4>
-            <div class="display-6 fw-bold text-bitcoin">{{ "%.4f"|format(result.mse) }}</div>
+            <h4 class="text-secondary">Mean Absolute Error (MAE)</h4>
+            <div class="display-6 fw-bold text-bitcoin">${{ "%.2f"|format(result.mae) }}</div>
         </div>
     </div>
     <div class="col-md-6 mb-4">
         <div class="glass-card text-center h-100 d-flex flex-column justify-content-center">
             <h4 class="text-secondary">Root Mean Squared Error (RMSE)</h4>
-            <div class="display-6 fw-bold text-bitcoin">{{ "%.4f"|format(result.rmse) }}</div>
+            <div class="display-6 fw-bold text-bitcoin">${{ "%.2f"|format(result.rmse) }}</div>
         </div>
     </div>
 </div>
@@ -65,8 +65,11 @@
 </div>
 
 <script>
-    var plotData = {{ result.plot | safe }};
-    Plotly.newPlot('test-plot', JSON.parse(plotData).data, JSON.parse(plotData).layout, { responsive: true });
+    var rawPlot = {{ result.plot | tojson }};
+    var plotObj = typeof rawPlot === 'string' ? JSON.parse(rawPlot) : rawPlot;
+    if (plotObj) {
+        Plotly.newPlot('test-plot', plotObj.data || [], plotObj.layout || {}, { responsive: true });
+    }
 </script>
 <div class="text-center mt-4">
     <div class="alert alert-success d-inline-block">

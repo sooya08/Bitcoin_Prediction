@@ -95,10 +95,14 @@
                             <td class="fw-bold bg-dark">{{ year }}</td>
                             {% for month in ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
                             'Nov', 'Dec'] %}
-                            {% set val = months.get(month, 0) %}
+                            {% set val = months.get(month) %}
                             <td
-                                style="background-color: {% if val > 10 %}rgba(40, 167, 69, 0.4){% elif val > 0 %}rgba(40, 167, 69, 0.2){% elif val < -10 %}rgba(220, 53, 69, 0.4){% elif val < 0 %}rgba(220, 53, 69, 0.2){% else %}transparent{% endif %};">
-                                {{ "%.1f"|format(val) }}%
+                                style="background-color: {% if val is not none %}{% if val > 10 %}rgba(40, 167, 69, 0.4){% elif val > 0 %}rgba(40, 167, 69, 0.2){% elif val < -10 %}rgba(220, 53, 69, 0.4){% elif val < 0 %}rgba(220, 53, 69, 0.2){% else %}transparent{% endif %}{% else %}transparent{% endif %};">
+                                {% if val is not none %}
+                                    {{ "%.1f"|format(val) }}%
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
                             </td>
                             {% endfor %}
                         </tr>
@@ -132,9 +136,9 @@
 </div>
 
 <script>
-    var plots = {{ plots | safe }};
+    var plots = {{ plots | tojson }};
     if (plots && plots.volume) {
-        var volData = JSON.parse(plots.volume);
+        var volData = typeof plots.volume === 'string' ? JSON.parse(plots.volume) : plots.volume;
         Plotly.newPlot('volume-chart', volData.data, volData.layout, { responsive: true });
     }
 </script>
